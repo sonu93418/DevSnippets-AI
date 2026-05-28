@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useWindowDimensions } from 'react-native';
@@ -11,6 +11,46 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
   const { width } = useWindowDimensions();
   const compact = width < 360;
   const { theme } = useTheme();
+  const [thoughtIndex, setThoughtIndex] = useState(0);
+  const sideInset = Math.max(72, Math.round(width * 0.22));
+  const thoughtFontSize = width < 360 ? 16 : 22;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const THOUGHTS = [
+    'BUGS',
+    'SHIP IT',
+    'LOL',
+    'BRB',
+    'WAT',
+    'POG',
+    'YUP',
+    'AGAIN',
+  ];
+  const COLORS = ['#FF6B6B', '#FFD93D', '#6BF178', '#6BCBFF', '#B86BFF', '#FF8FB1', '#FFD6A5', '#A5FFC4'];
+  const color = COLORS[thoughtIndex % COLORS.length];
+
+  const AnimatedText = Animated.createAnimatedComponent(Text);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setThoughtIndex((i) => (i + 1) % THOUGHTS.length);
+    }, 2500);
+
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.03, duration: 700, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.delay(1000),
+      ]),
+    );
+
+    pulse.start();
+
+    return () => {
+      clearInterval(interval);
+      pulse.stop();
+    };
+  }, [scaleAnim]);
 
   return (
     <View
@@ -31,6 +71,44 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
         </View>
         {!compact && <Text style={[styles.appTitle, { color: theme.isDark ? '#F4F4F6' : '#2E2E2E' }]}>{title}</Text>}
       </View>
+
+      {/* Center thought area (absolute, won't push other items) */}
+      {!compact && (
+        <Pressable
+          onPress={() => setThoughtIndex((thoughtIndex + 1) % THOUGHTS.length)}
+          hitSlop={8}
+          style={[
+            styles.centerAbsolute,
+                {
+                  top: insets.top + 12,
+                  left: sideInset,
+                  right: sideInset,
+                },
+          ]}
+        >
+          <Animated.Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.thought,
+              {
+                color,
+                fontSize: thoughtFontSize,
+                fontWeight: '900',
+                letterSpacing: 0.8,
+                textTransform: 'uppercase',
+                fontFamily: Platform.select({ ios: 'SnellRoundhand', android: 'cursive', default: 'cursive' }),
+                textShadowColor: color,
+                textShadowOffset: { width: 0, height: 4 },
+                textShadowRadius: 14,
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
+          >
+            {THOUGHTS[thoughtIndex]}
+          </Animated.Text>
+        </Pressable>
+      )}
 
       <View style={styles.right}>
         <Pressable
@@ -85,5 +163,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  thought: {
+    fontSize: 13,
+    letterSpacing: 0.2,
+    opacity: 0.95,
+    maxWidth: '100%'
+  },
+  centerAbsolute: {
+    position: 'absolute',
+    left: 88,
+    right: 88,
+    top: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
   },
 });

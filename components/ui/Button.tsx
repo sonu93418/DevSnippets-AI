@@ -3,13 +3,14 @@
 // ============================================================
 import React from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   ActivityIndicator,
   StyleSheet,
   ViewStyle,
   TextStyle,
   View,
+  Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
@@ -64,23 +65,24 @@ export function Button({
   const isDisabled = disabled || loading;
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      activeOpacity={0.75}
-      style={[
+      android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+      style={({ pressed }) => [
         styles.base,
         {
           backgroundColor: vs.bg,
-          borderWidth: vs.border ? 1.5 : 0,
+          borderWidth: vs.border ? 1.2 : 0,
           borderColor: vs.border ?? 'transparent',
           paddingVertical: sizeStyles.paddingVertical,
           paddingHorizontal: sizeStyles.paddingHorizontal,
-          opacity: isDisabled ? 0.5 : 1,
-          borderRadius: BorderRadius.xl,
+          opacity: isDisabled ? 0.52 : 1,
+          borderRadius: BorderRadius.xl + 4,
           width: fullWidth ? '100%' : undefined,
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
           minHeight: sizeStyles.minHeight ?? 44,
+          transform: [{ scale: pressed ? 0.985 : 1 }],
           ...(variant === 'primary' || variant === 'danger' ? theme.shadow.sm : {}),
         },
         style,
@@ -98,7 +100,16 @@ export function Button({
               style={styles.iconLeft}
             />
           )}
-          <Text style={[styles.label, { color: vs.text, fontSize: sizeStyles.fontSize }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: vs.text,
+                fontSize: sizeStyles.fontSize,
+                fontFamily: Platform.select({ ios: 'Inter', android: 'Roboto', default: undefined }),
+              },
+            ]}
+          >
             {label}
           </Text>
           {icon && iconPosition === 'right' && (
@@ -111,7 +122,7 @@ export function Button({
           )}
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
