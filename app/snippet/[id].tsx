@@ -256,6 +256,7 @@ export default function SnippetDetailScreen() {
             variant="danger"
             icon="trash-2"
             size="md"
+            fullWidth
             style={styles.deleteBtn}
           />
         </ScrollView>
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: Spacing.base, paddingBottom: 160 },
   headerActions: { flexDirection: 'row', gap: Spacing.sm, marginRight: Spacing.sm },
-  headerBtn: { padding: 4 },
+  headerBtn: { padding: 6, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -319,14 +320,16 @@ const styles = StyleSheet.create({
     minWidth: '45%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.base,
+    paddingVertical: 10, // matches Button md touch size
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     gap: Spacing.sm,
+    minHeight: 44,
   },
+  
   aiTile: { borderWidth: 1.5 },
   actionLabel: { fontSize: FontSize.sm, fontWeight: FontWeight.medium },
-  deleteBtn: { marginTop: Spacing.xl, alignSelf: 'center' },
+  deleteBtn: { marginTop: Spacing.xl },
   exportList: { paddingHorizontal: Spacing.base },
   exportItem: {
     flexDirection: 'row',

@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Platform,
   KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -113,7 +114,10 @@ export function SnippetForm({
               LANGUAGE
             </Text>
             <TouchableOpacity
-              onPress={() => setShowLangPicker(true)}
+              onPress={() => {
+                Keyboard.dismiss();
+                setShowLangPicker(true);
+              }}
               style={[
                 styles.langPicker,
                 {
@@ -247,23 +251,24 @@ export function SnippetForm({
         visible={showLangPicker}
         onClose={() => setShowLangPicker(false)}
         title="Select Language"
-        type="bottom"
+        type="center"
       >
         <ScrollView style={styles.langList} showsVerticalScrollIndicator={false}>
           {LANGUAGES.map((lang) => (
             <TouchableOpacity
               key={lang.id}
+              activeOpacity={0.8}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               onPress={() => {
-                setLanguage(lang.id);
+                // Close modal first to avoid UI reflow while modal is animating,
+                // then apply the language after modal is closed.
                 setShowLangPicker(false);
+                setTimeout(() => setLanguage(lang.id), 200);
               }}
               style={[
                 styles.langItem,
                 {
-                  backgroundColor:
-                    language === lang.id
-                      ? `${lang.color}18`
-                      : 'transparent',
+                  backgroundColor: language === lang.id ? `${lang.color}18` : 'transparent',
                   borderBottomColor: theme.colors.border,
                 },
               ]}
@@ -285,7 +290,7 @@ export function SnippetForm({
               )}
             </TouchableOpacity>
           ))}
-          <View style={{ height: 32 }} />
+          <View style={{ height: 16 }} />
         </ScrollView>
       </Modal>
     </KeyboardAvoidingView>

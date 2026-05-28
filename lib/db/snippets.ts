@@ -50,7 +50,11 @@ function readWebSnippets(): Snippet[] {
     const raw = localStorage.getItem(WEB_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) {
+      console.warn('readWebSnippets: stored value is not an array, resetting storage.');
+      return [];
+    }
+    return parsed;
   } catch {
     return [];
   }
@@ -67,6 +71,11 @@ function writeWebSnippets(snippets: Snippet[]): void {
 
   try {
     localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(snippets));
+    try {
+      // quick sanity: log the current count
+      const cur = JSON.parse(localStorage.getItem(WEB_STORAGE_KEY) || '[]');
+      console.debug('writeWebSnippets: wrote', Array.isArray(cur) ? cur.length : '??', 'snippets');
+    } catch {}
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : 'Unable to save snippets in browser storage.'
@@ -181,7 +190,9 @@ export function createSnippet(input: SnippetCreateInput): Snippet {
     };
 
     try {
-      writeWebSnippets([snippet, ...readWebSnippets()]);
+      const existing = readWebSnippets();
+      writeWebSnippets([snippet, ...existing]);
+      console.debug('createSnippet (web): created snippet', snippet.id, 'total now', existing.length + 1);
       return snippet;
     } catch (err) {
       console.error('createSnippet (web) failed:', err);
@@ -204,6 +215,11 @@ export function createSnippet(input: SnippetCreateInput): Snippet {
       now,
     ]
   );
+
+  try {
+    const cnt = queryFirst<{ count: number }>('SELECT COUNT(*) as count FROM snippets');
+    console.debug('createSnippet: sqlite snippets count after insert', cnt?.count ?? 'unknown');
+  } catch {}
 
   return {
     id,

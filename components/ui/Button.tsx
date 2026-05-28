@@ -46,9 +46,10 @@ export function Button({
   const { theme } = useTheme();
 
   const sizeStyles = {
-    sm: { paddingVertical: 8, paddingHorizontal: 14, fontSize: FontSize.sm, iconSize: 14 },
-    md: { paddingVertical: 12, paddingHorizontal: 20, fontSize: FontSize.base, iconSize: 16 },
-    lg: { paddingVertical: 16, paddingHorizontal: 28, fontSize: FontSize.md, iconSize: 18 },
+    // Standard touch targets: sm=36, md=44, lg=52
+    sm: { paddingVertical: 6, paddingHorizontal: 12, fontSize: FontSize.sm, iconSize: 14, minHeight: 36 },
+    md: { paddingVertical: 10, paddingHorizontal: 16, fontSize: FontSize.base, iconSize: 16, minHeight: 44 },
+    lg: { paddingVertical: 14, paddingHorizontal: 20, fontSize: FontSize.md, iconSize: 18, minHeight: 52 },
   }[size];
 
   const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
@@ -79,7 +80,7 @@ export function Button({
           borderRadius: BorderRadius.xl,
           width: fullWidth ? '100%' : undefined,
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
-          minHeight: 44,
+          minHeight: sizeStyles.minHeight ?? 44,
           ...(variant === 'primary' || variant === 'danger' ? theme.shadow.sm : {}),
         },
         style,

@@ -1,48 +1,48 @@
 // ============================================================
-// Scandinavian Clean Theme 🇸🇪🇩🇰
-// Nordic palette — fjord blues, snow whites, clean minimalism
+// Premium Developer Theme
+// Purple, teal, amber, charcoal, and soft light neutrals
 // ============================================================
 
 export const Colors = {
   // --- Primary Palette ---
-  primary: '#2D6A9F',        // Fjord Blue
-  primaryLight: '#5BA4D0',   // Ice Blue
-  primaryDark: '#1A4B73',    // Deep Fjord
-  accent: '#4A90C4',         // Sky Fjord
+  primary: '#7A5AF8',        // Violet
+  primaryLight: '#A78BFA',   // Soft Violet
+  primaryDark: '#5B3FE0',    // Deep Violet
+  accent: '#3EC9A6',         // Teal
 
   // --- Backgrounds ---
-  backgroundLight: '#F8F9FA',  // Nordic Snow White
-  backgroundDark: '#0F1117',   // Nordic Night
+  backgroundLight: '#F4F4F6',  // Soft light neutral
+  backgroundDark: '#2E2E2E',   // Charcoal dark
 
   // --- Surfaces ---
   surfaceLight: '#FFFFFF',
-  surfaceDark: '#1A1D24',
+  surfaceDark: '#373737',
   surfaceElevatedLight: '#FFFFFF',
-  surfaceElevatedDark: '#22262F',
+  surfaceElevatedDark: '#3F3F3F',
 
   // --- Text ---
-  textPrimaryLight: '#1A1F2E',  // Near Black
-  textPrimaryDark: '#F1F5F9',   // Snow White Text
-  textSecondaryLight: '#6B7280',
-  textSecondaryDark: '#9CA3AF',
-  textTertiaryLight: '#9CA3AF',
-  textTertiaryDark: '#6B7280',
+  textPrimaryLight: '#171717',  // Deep neutral
+  textPrimaryDark: '#F4F4F6',   // Soft light neutral
+  textSecondaryLight: '#4B4B4B',
+  textSecondaryDark: '#D3D3D8',
+  textTertiaryLight: '#6B7280',
+  textTertiaryDark: '#A7A7AD',
 
   // --- Borders ---
   borderLight: '#E5E7EB',
-  borderDark: '#2D3241',
+  borderDark: '#464646',
 
   // --- Status ---
-  success: '#16A34A',
-  successLight: '#DCFCE7',
-  warning: '#D97706',
-  warningLight: '#FEF3C7',
-  danger: '#DC2626',
-  dangerLight: '#FEE2E2',
-  info: '#2563EB',
-  infoLight: '#DBEAFE',
+  success: '#3EC9A6',
+  successLight: '#DDF7F0',
+  warning: '#FFC94A',
+  warningLight: '#FFF3CF',
+  danger: '#D64545',
+  dangerLight: '#FEECEC',
+  info: '#7A5AF8',
+  infoLight: '#EEE8FF',
 
-  // --- Language Colors (for badges) ---
+  // --- Language Colors (for badges) — keep originals for recognizability
   langJS: '#F7DF1E',
   langTS: '#3178C6',
   langPY: '#3572A5',
@@ -57,17 +57,17 @@ export const Colors = {
   langDefault: '#6B7280',
 
   // --- Favorites ---
-  favorite: '#F59E0B',
-  favoriteBg: '#FFFBEB',
+  favorite: '#FFC94A',
+  favoriteBg: '#FFF7DB',
 
   // --- Code Background ---
-  codeBgLight: '#F1F5F9',
-  codeBgDark: '#131620',
+  codeBgLight: '#FFFFFF',
+  codeBgDark: '#262626',
 
   // --- Tab Bar ---
-  tabActive: '#2D6A9F',
-  tabInactiveLight: '#9CA3AF',
-  tabInactiveDark: '#6B7280',
+  tabActive: '#7A5AF8',
+  tabInactiveLight: '#8E93A3',
+  tabInactiveDark: '#B2B2B2',
 } as const;
 
 export const Spacing = {

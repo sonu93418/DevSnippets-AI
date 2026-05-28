@@ -1,7 +1,7 @@
 // ============================================================
 // Home Screen — Snippet list with search, filters & FAB
 // ============================================================
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   FlatList,
@@ -14,19 +14,18 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import { useRef } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useSnippets } from '../hooks/useSnippets';
 import { SearchBar } from '../components/layout/SearchBar';
+import { Card } from '../components/ui/Card';
 import { SnippetCard } from '../components/snippet/SnippetCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { HomeBanner } from '../components/ui/HomeBanner';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '../constants/theme';
-import { LANGUAGES } from '../constants/languages';
+import { LANGUAGES, getLanguageColor } from '../constants/languages';
 import type { SearchFilters } from '../types';
 
 const LANG_FILTERS = [
@@ -58,8 +57,8 @@ export default function HomeScreen() {
     language: langFilter === 'all' ? undefined : langFilter,
   };
 
-  const { snippets, loading, refresh, toggleSnippetFavorite, removeSnippet } =
-    useSnippets(filters);
+  const { snippets, loading, refresh, toggleSnippetFavorite, removeSnippet } = useSnippets(filters);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await refresh(filters);
@@ -95,58 +94,83 @@ export default function HomeScreen() {
       style={[styles.safe, { backgroundColor: theme.colors.background }]}
       edges={['left', 'right', 'bottom']}
     >
-      <View style={styles.bannerWrap}>
-        <HomeBanner snippetCount={snippets.length} />
-      </View>
+      <View style={styles.topStack}>
+        <View style={styles.sectionLabelRow}>
+          <Text style={[styles.sectionLabel, { color: theme.colors.textSecondary }]}>Search</Text>
+        </View>
 
-      <View style={[styles.topBar, { borderBottomColor: theme.colors.border }]}> 
-        <SearchBar
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search snippets..."
-        />
+        <Card elevated padding={12} style={styles.searchCard}>
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search snippets..."
+          />
+        </Card>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-          contentContainerStyle={styles.filterRow}
-        >
-          {LANG_FILTERS.map((lang) => {
-            const active = langFilter === lang.id;
-            return (
-              <TouchableOpacity
-                key={lang.id}
-                onPress={() => setLangFilter(lang.id)}
-                style={[
-                  styles.filterChip,
-                  {
-                    backgroundColor: active
-                      ? theme.colors.primary
-                      : theme.isDark
-                      ? 'rgba(255,255,255,0.06)'
-                      : 'rgba(0,0,0,0.04)',
-                    borderRadius: BorderRadius.full,
-                    borderWidth: active ? 0 : 1,
-                    borderColor: theme.colors.border,
-                  },
-                ]}
-              >
-                <Text
+        <View style={styles.sectionLabelRow}>
+          <Text style={[styles.sectionLabel, { color: theme.colors.textSecondary }]}>Languages</Text>
+        </View>
+
+        <Card elevated padding={10} style={styles.filterCard}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterRow}
+          >
+            {LANG_FILTERS.map((lang) => {
+              const active = langFilter === lang.id;
+              const languageColor = lang.id === 'all' ? theme.colors.primary : getLanguageColor(lang.id);
+
+              return (
+                <TouchableOpacity
+                  key={lang.id}
+                  onPress={() => setLangFilter(lang.id)}
                   style={[
-                    styles.filterLabel,
+                    styles.filterChip,
                     {
-                      color: active ? '#FFFFFF' : theme.colors.textSecondary,
-                      fontWeight: active ? FontWeight.semibold : FontWeight.regular,
+                      backgroundColor: active
+                        ? theme.isDark
+                          ? 'rgba(45,106,159,0.22)'
+                          : `${languageColor}16`
+                        : theme.isDark
+                        ? 'rgba(255,255,255,0.04)'
+                        : 'rgba(255,255,255,0.78)',
+                      borderRadius: BorderRadius.full,
+                      borderWidth: 1,
+                      borderColor: active ? languageColor : theme.colors.border,
+                      ...theme.shadow.sm,
                     },
                   ]}
                 >
-                  {lang.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+                  <View
+                    style={[
+                      styles.filterDot,
+                      {
+                        backgroundColor: active ? languageColor : `${languageColor}B3`,
+                      },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.filterLabel,
+                      {
+                        color: active ? theme.colors.textPrimary : theme.colors.textSecondary,
+                        fontWeight: active ? FontWeight.semibold : FontWeight.medium,
+                      },
+                    ]}
+                  >
+                    {lang.label}
+                  </Text>
+                  {active && (
+                    <View style={[styles.filterCheck, { backgroundColor: languageColor }]}>
+                      <Feather name="check" size={10} color="#FFFFFF" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </Card>
       </View>
 
       {loading && !refreshing ? (
@@ -222,35 +246,60 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
   },
-  topBar: {
+  topStack: {
     paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.md,
+    paddingTop: Spacing.sm,
     paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
+    gap: 10,
   },
-  filterScroll: {
-    marginTop: Spacing.md,
+  sectionLabelRow: {
+    paddingLeft: 2,
+  },
+  sectionLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+  },
+  searchCard: {
+    overflow: 'hidden',
+  },
+  filterCard: {
+    overflow: 'hidden',
   },
   filterRow: {
-    gap: Spacing.sm,
-    paddingRight: Spacing.sm,
+    gap: 8,
+    paddingRight: Spacing.xs,
+    paddingVertical: 1,
+    alignItems: 'center',
   },
   filterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minHeight: 36,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   filterLabel: {
-    fontSize: FontSize.sm,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
-  countRow: {
-    paddingHorizontal: Spacing.base,
-    paddingTop: 0,
-    paddingBottom: Spacing.xs,
+  filterDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 9999,
+    flexShrink: 0,
   },
-  bannerWrap: {
-    paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
-    paddingBottom: Spacing.sm,
+  filterCheck: {
+    width: 14,
+    height: 14,
+    borderRadius: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   list: {
     padding: Spacing.base,

@@ -14,6 +14,7 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '../../constants/theme';
 import { LanguageBadge } from './LanguageBadge';
+import MacWindowControls from '../ui/MacWindowControls';
 import { Tag } from '../ui/Tag';
 import type { Snippet } from '../../types';
 import { Colors } from '../../constants/theme';
@@ -63,6 +64,23 @@ export function SnippetCard({
         },
       ]}
     >
+      {/* Mac window controls (polished container at top-right) */}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.macWrapper,
+          {
+            // Slightly lift and nudge outside the top-right corner for a polished chrome look
+            backgroundColor: `${theme.colors.surface}F0`,
+            borderColor: theme.colors.border,
+            borderRadius: 14,
+            ...theme.shadow.sm,
+          },
+        ]}
+      >
+        <MacWindowControls size={8} />
+      </View>
+
       {/* Top row: title + actions */}
       <View style={styles.topRow}>
         <View style={styles.titleArea}>
@@ -87,15 +105,15 @@ export function SnippetCard({
           >
             <Feather
               name={snippet.isFavorite ? 'star' : 'star'}
-              size={18}
+              size={16}
               color={snippet.isFavorite ? Colors.favorite : theme.colors.textTertiary}
-              style={snippet.isFavorite ? { opacity: 1 } : { opacity: 0.5 }}
+              style={snippet.isFavorite ? { opacity: 1 } : { opacity: 0.6 }}
             />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleDelete}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={styles.actionBtn}
+            style={[styles.actionBtn, { backgroundColor: 'transparent' }]}
           >
             <Feather name="trash-2" size={16} color={theme.colors.textTertiary} />
           </TouchableOpacity>
@@ -169,11 +187,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: Spacing.base,
     marginBottom: Spacing.md,
+      position: 'relative',
   },
   topRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: Spacing.sm,
+  },
+  macWrapper: {
+    position: 'absolute',
+    top: -10,
+    right: 12,
+    zIndex: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    overflow: 'hidden',
   },
   titleArea: {
     flex: 1,
@@ -192,7 +221,12 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.sm,
   },
   actionBtn: {
-    padding: 2,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    padding: 4,
   },
   badgeRow: {
     flexDirection: 'row',

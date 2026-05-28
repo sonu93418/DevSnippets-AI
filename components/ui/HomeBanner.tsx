@@ -34,11 +34,14 @@ export function HomeBanner({ snippetCount }: HomeBannerProps) {
       style={[
         styles.card,
         {
-          backgroundColor: theme.isDark ? 'rgba(45,106,159,0.14)' : 'rgba(45,106,159,0.05)',
-          borderColor: theme.isDark ? 'rgba(91,164,208,0.18)' : 'rgba(45,106,159,0.10)',
+          backgroundColor: theme.isDark ? 'rgba(45,106,159,0.14)' : 'rgba(45,106,159,0.06)',
+          borderColor: theme.isDark ? 'rgba(91,164,208,0.18)' : 'rgba(45,106,159,0.12)',
         },
       ]}
     >
+      <View style={[styles.blobA, { backgroundColor: theme.isDark ? 'rgba(91,164,208,0.10)' : 'rgba(91,164,208,0.12)' }]} />
+      <View style={[styles.blobB, { backgroundColor: theme.isDark ? 'rgba(74,144,196,0.08)' : 'rgba(74,144,196,0.08)' }]} />
+
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
@@ -46,14 +49,16 @@ export function HomeBanner({ snippetCount }: HomeBannerProps) {
             <View style={styles.headerTextBlock}>
               <Text style={[styles.kicker, { color: theme.colors.primaryDark }]}>SNIPPETS</Text>
               <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Snippets</Text>
-              <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Your saved code, neatly in one place.</Text>
             </View>
           </View>
+        </View>
 
-          <View style={[styles.countPill, { backgroundColor: theme.colors.primary, borderColor: theme.colors.primaryDark }]}>
-            <Feather name="code" size={12} color="#fff" />
-            <Text style={styles.countText}>{snippetCount} saved</Text>
+        <View style={[styles.footerRow, { borderTopColor: theme.colors.border }]}>
+          <View style={[styles.statPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <Feather name="code" size={11} color={theme.colors.primary} />
+            <Text style={[styles.statText, { color: theme.colors.textSecondary }]}>Library</Text>
           </View>
+          <Text style={[styles.helper, { color: theme.colors.textTertiary }]}>{snippetCount} saved snippets</Text>
         </View>
       </View>
     </Card>
@@ -64,21 +69,37 @@ const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
     marginBottom: Spacing.base,
+    position: 'relative',
+  },
+  blobA: {
+    position: 'absolute',
+    top: -28,
+    right: -18,
+    width: 96,
+    height: 96,
+    borderRadius: 9999,
+  },
+  blobB: {
+    position: 'absolute',
+    bottom: -18,
+    left: -16,
+    width: 72,
+    height: 72,
+    borderRadius: 9999,
   },
   content: {
     paddingHorizontal: Spacing.base,
-    paddingVertical: 16,
+    paddingVertical: 18,
+    gap: Spacing.base,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.base,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.base,
+    gap: 14,
     flex: 1,
     minWidth: 0,
   },
@@ -88,21 +109,17 @@ const styles = StyleSheet.create({
   },
   kicker: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 1.2,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: 1.6,
   },
   title: {
-    fontSize: FontSize['2xl'],
+    fontSize: FontSize['3xl'],
     fontWeight: FontWeight.extrabold,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: FontSize.sm,
-    lineHeight: 20,
+    letterSpacing: -0.9,
   },
   logoShell: {
-    width: 52,
-    height: 52,
+    width: 54,
+    height: 54,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -110,19 +127,19 @@ const styles = StyleSheet.create({
   },
   logoGlowA: {
     position: 'absolute',
-    width: 44,
-    height: 44,
-    borderRadius: 16,
-    backgroundColor: 'rgba(45,106,159,0.20)',
-    transform: [{ rotate: '-8deg' }],
+    width: 46,
+    height: 46,
+    borderRadius: 17,
+    backgroundColor: 'rgba(45,106,159,0.18)',
+    transform: [{ rotate: '-10deg' }],
   },
   logoGlowB: {
     position: 'absolute',
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: 'rgba(91,164,208,0.24)',
-    transform: [{ rotate: '10deg' }],
+    width: 38,
+    height: 38,
+    borderRadius: 14,
+    backgroundColor: 'rgba(91,164,208,0.22)',
+    transform: [{ rotate: '12deg' }],
   },
   logoCore: {
     width: 38,
@@ -140,20 +157,31 @@ const styles = StyleSheet.create({
     height: 28,
     resizeMode: 'contain',
   },
-  countPill: {
+  footerRow: {
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  statPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     borderWidth: 1,
     borderRadius: BorderRadius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     flexShrink: 0,
   },
-  countText: {
-    color: '#FFFFFF',
+  statText: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 0.2,
+    fontWeight: FontWeight.semibold,
+  },
+  helper: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.medium,
+    flexShrink: 1,
   },
 });
