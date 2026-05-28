@@ -25,7 +25,9 @@ import { SnippetCard } from '../components/snippet/SnippetCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '../constants/theme';
-import { LANGUAGES, getLanguageColor } from '../constants/languages';
+import { LANGUAGES, getLanguageColor, getLanguageExtension, getLanguageLabel } from '../constants/languages';
+import { LanguageBadge } from '../components/snippet/LanguageBadge';
+import * as Clipboard from 'expo-clipboard';
 import type { SearchFilters } from '../types';
 
 const LANG_FILTERS = [
@@ -171,6 +173,45 @@ export default function HomeScreen() {
             })}
           </ScrollView>
         </Card>
+
+        {/* Language Info Card (polished) */}
+        {langFilter !== 'all' && (
+          <Card elevated padding={12} style={styles.langInfoCard}>
+            <View style={styles.langInfoRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <View style={{ marginRight: 12 }}>
+                  <LanguageBadge language={langFilter} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.langInfoTitle, { color: theme.colors.textPrimary }]}>{getLanguageLabel(langFilter)}</Text>
+                  <Text style={[styles.langInfoSubtitle, { color: theme.colors.textTertiary }]}>Snippets filtered by this language</Text>
+                </View>
+              </View>
+
+              <View style={styles.langCommands}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.langCommandRow}>
+                  {(() => {
+                    const ext = getLanguageExtension(langFilter);
+                    const sample = `example.${ext}`;
+                    const commands = [
+                      `run ${sample}`,
+                      `open ${sample}`,
+                      `edit ${sample}`,
+                    ];
+                    return commands.map((c) => (
+                      <View key={c} style={[styles.commandBox, { backgroundColor: theme.colors.codeBg, borderColor: theme.colors.border }]}>
+                        <Text style={[styles.commandText, { color: theme.colors.textPrimary }]} numberOfLines={1} ellipsizeMode="middle">{c}</Text>
+                        <TouchableOpacity onPress={async () => { await Clipboard.setStringAsync(c); }} style={styles.commandCopyBtn}>
+                          <Feather name="copy" size={14} color={theme.colors.textTertiary} />
+                        </TouchableOpacity>
+                      </View>
+                    ));
+                  })()}
+                </ScrollView>
+              </View>
+            </View>
+          </Card>
+        )}
       </View>
 
       {loading && !refreshing ? (
@@ -318,5 +359,49 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  langInfoCard: {
+    marginHorizontal: Spacing.base,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  langInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langInfoTitle: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+  },
+  langInfoSubtitle: {
+    fontSize: FontSize.sm,
+    marginTop: 2,
+  },
+  langCommands: {
+    marginLeft: Spacing.base,
+    minWidth: 120,
+    maxWidth: '45%',
+  },
+  langCommandRow: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  commandBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    marginRight: Spacing.sm,
+  },
+  commandText: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: FontSize.sm,
+    marginRight: Spacing.sm,
+  },
+  commandCopyBtn: {
+    padding: 6,
+    borderRadius: 8,
   },
 });

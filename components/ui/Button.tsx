@@ -56,7 +56,7 @@ export function Button({
     primary: { bg: theme.colors.primary, text: '#FFFFFF' },
     secondary: { bg: theme.colors.surface, text: theme.colors.textPrimary, border: theme.colors.border },
     ghost: { bg: 'transparent', text: theme.colors.primary },
-    danger: { bg: '#DC2626', text: '#FFFFFF' },
+    danger: { bg: theme.colors.danger, text: '#FFFFFF' },
     outline: { bg: 'transparent', text: theme.colors.primary, border: theme.colors.primary },
   };
 

@@ -20,6 +20,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useSnippets } from '../../hooks/useSnippets';
 import { CodeViewer } from '../../components/snippet/CodeViewer';
 import { LanguageBadge } from '../../components/snippet/LanguageBadge';
+import { getLanguageExtension, getLanguageLabel } from '../../constants/languages';
 import { Tag } from '../../components/ui/Tag';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -32,6 +33,7 @@ import {
   copySnippetToClipboard,
 } from '../../lib/export/exportSnippet';
 import { initFileSystem } from '../../lib/files/fileManager';
+import * as Clipboard from 'expo-clipboard';
 import type { Snippet, ExportFormat } from '../../types';
 
 const EXPORT_FORMATS: { label: string; format: ExportFormat; icon: keyof typeof Feather.glyphMap }[] = [
@@ -187,12 +189,63 @@ export default function SnippetDetailScreen() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          {/* Meta */}
-          <View style={styles.metaRow}>
-            <LanguageBadge language={snippet.language} />
-            <Text style={[styles.date, { color: theme.colors.textTertiary }]}>
-              Updated {new Date(snippet.updatedAt).toLocaleDateString()}
-            </Text>
+          {/* Meta Card: language, file, run command */}
+          <View style={[styles.metaCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <View style={styles.metaLeft}>
+              <LanguageBadge language={snippet.language} />
+              <View style={{ marginLeft: 12, flex: 1 }}>
+                <Text style={[styles.metaTitle, { color: theme.colors.textPrimary }]}>{getLanguageLabel(snippet.language)}</Text>
+                <Text style={[styles.metaSub, { color: theme.colors.textTertiary }]}>Updated {new Date(snippet.updatedAt).toLocaleDateString()}</Text>
+                {snippet.filePath ? (
+                  <Text style={[styles.metaSub, { color: theme.colors.textTertiary }]}>Path: {snippet.filePath}</Text>
+                ) : null}
+              </View>
+            </View>
+
+            <View style={styles.metaRight}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.commandRow}>
+                {(() => {
+                  const ext = getLanguageExtension(snippet.language);
+                  const baseName = snippet.filePath ? snippet.filePath.split('/').pop()?.split('.')[0] ?? 'snippet' : 'snippet';
+                  let cmd = '';
+                  switch (snippet.language) {
+                    case 'javascript':
+                    case 'js':
+                      cmd = `node ${baseName}.${ext}`;
+                      break;
+                    case 'typescript':
+                    case 'ts':
+                      cmd = `ts-node ${baseName}.${ext}`;
+                      break;
+                    case 'python':
+                    case 'py':
+                      cmd = `python ${baseName}.${ext}`;
+                      break;
+                    case 'go':
+                      cmd = `go run ${baseName}.${ext}`;
+                      break;
+                    case 'rust':
+                      cmd = `cargo run`;
+                      break;
+                    case 'bash':
+                    case 'sh':
+                      cmd = `bash ${baseName}.${ext}`;
+                      break;
+                    default:
+                      cmd = `// No run command for .${ext}`;
+                  }
+
+                  return (
+                    <View style={[styles.commandBox, { backgroundColor: theme.colors.codeBg, borderColor: theme.colors.border }]}>
+                      <Text style={[styles.commandText, { color: theme.colors.textPrimary }]} selectable numberOfLines={1} ellipsizeMode="middle">{cmd}</Text>
+                      <TouchableOpacity onPress={async () => { await Clipboard.setStringAsync(cmd); Alert.alert('Copied', 'Command copied to clipboard'); }} style={styles.commandCopy}>
+                        <Feather name="copy" size={14} color={theme.colors.textTertiary} />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })()}
+              </ScrollView>
+            </View>
           </View>
 
           {/* Tags */}
@@ -247,18 +300,22 @@ export default function SnippetDetailScreen() {
                 AI Explain
               </Text>
             </TouchableOpacity>
+
+            {/* Delete tile (danger) */}
+            <TouchableOpacity
+              onPress={handleDelete}
+              style={[
+                styles.actionTile,
+                styles.deleteTile,
+                { backgroundColor: `${theme.colors.danger}12`, borderColor: `${theme.colors.danger}30` },
+              ]}
+            >
+              <Feather name="trash-2" size={18} color={theme.colors.danger} />
+              <Text style={[styles.actionLabel, { color: theme.colors.danger }]}>Delete</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Delete */}
-          <Button
-            label="Delete Snippet"
-            onPress={handleDelete}
-            variant="danger"
-            icon="trash-2"
-            size="md"
-            fullWidth
-            style={styles.deleteBtn}
-          />
+          {/* removed bottom delete button (now in action tiles) */}
         </ScrollView>
 
         {/* Export Modal */}
@@ -326,6 +383,10 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     minHeight: 44,
   },
+  deleteTile: {
+    // subtle stronger border for danger action
+    borderWidth: 1.25,
+  },
   
   aiTile: { borderWidth: 1.5 },
   actionLabel: { fontSize: FontSize.sm, fontWeight: FontWeight.medium },
@@ -339,4 +400,52 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   exportLabel: { flex: 1, fontSize: FontSize.base },
+  metaCard: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  metaLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  metaTitle: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+  },
+  metaSub: {
+    fontSize: FontSize.sm,
+    marginTop: 2,
+  },
+  metaRight: {
+    marginLeft: Spacing.base,
+    minWidth: 140,
+    maxWidth: '45%',
+  },
+  commandRow: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  commandBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+  },
+  commandText: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: FontSize.sm,
+    marginRight: Spacing.sm,
+  },
+  commandCopy: {
+    padding: 6,
+    borderRadius: 8,
+  },
 });

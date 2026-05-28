@@ -107,15 +107,21 @@ export function SnippetCard({
               name={snippet.isFavorite ? 'star' : 'star'}
               size={16}
               color={snippet.isFavorite ? Colors.favorite : theme.colors.textTertiary}
-              style={snippet.isFavorite ? { opacity: 1 } : { opacity: 0.6 }}
+              style={snippet.isFavorite ? { opacity: 1 } : { opacity: 0.75 }}
             />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleDelete}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={[styles.actionBtn, { backgroundColor: 'transparent' }]}
+            style={[
+              styles.actionBtnDelete,
+              {
+                borderColor: theme.colors.danger,
+                backgroundColor: theme.isDark ? `${theme.colors.danger}14` : `${theme.colors.danger}12`,
+              },
+            ]}
           >
-            <Feather name="trash-2" size={16} color={theme.colors.textTertiary} />
+            <Feather name="trash-2" size={14} color={theme.colors.danger} />
           </TouchableOpacity>
         </View>
       </View>
@@ -227,6 +233,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     padding: 4,
+  },
+  actionBtnDelete: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+    padding: 6,
+    borderWidth: 1,
   },
   badgeRow: {
     flexDirection: 'row',
