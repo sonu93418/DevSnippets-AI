@@ -258,61 +258,61 @@ export default function SnippetDetailScreen() {
           )}
 
           {/* Code Viewer */}
-          <CodeViewer
-            code={snippet.code}
-            language={snippet.language}
-            showLineNumbers
-          />
+          <View style={[styles.codeCard, { backgroundColor: theme.colors.codeBg, borderColor: theme.colors.border }]}>
+            <CodeViewer
+              code={snippet.code}
+              language={snippet.language}
+              showLineNumbers
+            />
+          </View>
 
           {/* Action Buttons */}
           <View style={styles.actionsGrid}>
-            <TouchableOpacity
+            <Button
+              label="Copy"
+              icon="copy"
               onPress={handleCopy}
-              style={[styles.actionTile, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
-            >
-              <Feather name="copy" size={20} color={theme.colors.primary} />
-              <Text style={[styles.actionLabel, { color: theme.colors.textPrimary }]}>Copy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleShare}
-              style={[styles.actionTile, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
-            >
-              <Feather name="share-2" size={20} color={theme.colors.primary} />
-              <Text style={[styles.actionLabel, { color: theme.colors.textPrimary }]}>Share</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setShowExport(true)}
-              style={[styles.actionTile, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
-            >
-              <Feather name="download" size={20} color={theme.colors.primary} />
-              <Text style={[styles.actionLabel, { color: theme.colors.textPrimary }]}>Export</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push(`/snippet/ai-explain/${snippet.id}`)}
-              style={[
-                styles.actionTile,
-                styles.aiTile,
-                { backgroundColor: `${theme.colors.primary}18`, borderColor: `${theme.colors.primary}44` },
-              ]}
-            >
-              <Feather name="zap" size={20} color={theme.colors.primary} />
-              <Text style={[styles.actionLabel, { color: theme.colors.primary, fontWeight: FontWeight.semibold }]}>
-                AI Explain
-              </Text>
-            </TouchableOpacity>
+              variant="secondary"
+              size="md"
+              style={styles.gridButton}
+            />
 
-            {/* Delete tile (danger) */}
-            <TouchableOpacity
+            <Button
+              label="Share"
+              icon="share-2"
+              onPress={handleShare}
+              variant="secondary"
+              size="md"
+              style={styles.gridButton}
+            />
+
+            <Button
+              label="Export"
+              icon="download"
+              onPress={() => setShowExport(true)}
+              variant="secondary"
+              size="md"
+              style={styles.gridButton}
+            />
+
+            <Button
+              label="AI Explain"
+              icon="zap"
+              onPress={() => router.push(`/snippet/ai-explain/${snippet.id}`)}
+              variant="outline"
+              size="md"
+              style={[styles.gridButton, styles.aiButton]}
+            />
+
+            <Button
+              label="Delete Snippet"
+              icon="trash-2"
               onPress={handleDelete}
-              style={[
-                styles.actionTile,
-                styles.deleteTile,
-                { backgroundColor: `${theme.colors.danger}12`, borderColor: `${theme.colors.danger}30` },
-              ]}
-            >
-              <Feather name="trash-2" size={18} color={theme.colors.danger} />
-              <Text style={[styles.actionLabel, { color: theme.colors.danger }]}>Delete</Text>
-            </TouchableOpacity>
+              variant="danger"
+              size="md"
+              fullWidth
+              style={styles.deleteButton}
+            />
           </View>
 
           {/* removed bottom delete button (now in action tiles) */}
@@ -447,5 +447,32 @@ const styles = StyleSheet.create({
   commandCopy: {
     padding: 6,
     borderRadius: 8,
+  },
+  codeCard: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  actionPrimary: {
+    minWidth: '45%',
+  },
+  deleteFull: {
+    width: '100%',
+    marginTop: Spacing.sm,
+    minWidth: undefined,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gridButton: {
+    flex: 1,
+    minWidth: '45%',
+    marginBottom: Spacing.sm,
+  },
+  deleteButton: {
+    marginTop: Spacing.sm,
+  },
+  aiButton: {
+    borderColor: undefined,
   },
 });

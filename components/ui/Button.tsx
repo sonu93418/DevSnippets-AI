@@ -28,7 +28,8 @@ interface ButtonProps {
   disabled?: boolean;
   icon?: keyof typeof Feather.glyphMap;
   iconPosition?: 'left' | 'right';
-  style?: ViewStyle;
+  // allow array styles for convenience in callers
+  style?: ViewStyle | ViewStyle[];
   fullWidth?: boolean;
 }
 

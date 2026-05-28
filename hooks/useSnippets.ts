@@ -63,7 +63,13 @@ export function useSnippets(initialFilters?: SearchFilters): UseSnippetsReturn {
   const addSnippet = useCallback(async (input: SnippetCreateInput): Promise<Snippet> => {
     try {
       const snippet = createSnippet(input);
-      setSnippets((prev) => [snippet, ...prev]);
+      // Ensure UI reflects authoritative DB state (handles filters / ordering)
+      try {
+        await refresh();
+      } catch {
+        // fallback: optimistic update if refresh fails
+        setSnippets((prev) => [snippet, ...prev]);
+      }
       return snippet;
     } catch (err) {
       console.error('addSnippet failed:', err);

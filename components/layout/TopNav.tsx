@@ -15,6 +15,10 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
   const sideInset = Math.max(72, Math.round(width * 0.22));
   const thoughtFontSize = width < 360 ? 16 : 22;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+    const [leftWidth, setLeftWidth] = useState(88);
+    const [rightWidth, setRightWidth] = useState(88);
+    const centerLeft = Math.max(sideInset, leftWidth + 12);
+    const centerRight = Math.max(sideInset, rightWidth + 12);
 
   const THOUGHTS = [
     'BUGS',
@@ -26,8 +30,13 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
     'YUP',
     'AGAIN',
   ];
-  const COLORS = ['#FF6B6B', '#FFD93D', '#6BF178', '#6BCBFF', '#B86BFF', '#FF8FB1', '#FFD6A5', '#A5FFC4'];
-  const color = COLORS[thoughtIndex % COLORS.length];
+  const lightPalette = ['#0f172a', '#1f2937', '#1e40af', '#0f766e', '#92400e']; // darker, high-contrast on light backgrounds
+  const darkPalette = ['#FF6B6B', '#FFD93D', '#6BF178', '#6BCBFF', '#B86BFF', '#FF8FB1']; // bright, readable on dark
+  const palette = theme.isDark ? darkPalette : lightPalette;
+  const color = palette[thoughtIndex % palette.length];
+  const textShadowColor = theme.isDark ? color : 'rgba(0,0,0,0.12)';
+  const textShadowRadius = theme.isDark ? 14 : 6;
+  const textShadowOffset = theme.isDark ? { width: 0, height: 4 } : { width: 0, height: 1 };
 
   const AnimatedText = Animated.createAnimatedComponent(Text);
 
@@ -63,7 +72,7 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
         },
       ]}
     >
-      <View style={styles.left}>
+      <View style={styles.left} onLayout={(e) => setLeftWidth(e.nativeEvent.layout.width)}>
         <View style={[styles.logoBadge, { backgroundColor: '#FFC94A', borderColor: '#2E2E2E' }]}>
           <View style={[styles.logoInner, { backgroundColor: '#7A5AF8' }]}>
             <Feather name="code" size={14} color="#F4F4F6" />
@@ -98,9 +107,9 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
                 letterSpacing: 0.8,
                 textTransform: 'uppercase',
                 fontFamily: Platform.select({ ios: 'SnellRoundhand', android: 'cursive', default: 'cursive' }),
-                textShadowColor: color,
-                textShadowOffset: { width: 0, height: 4 },
-                textShadowRadius: 14,
+                textShadowColor,
+                textShadowOffset,
+                textShadowRadius,
                 transform: [{ scale: scaleAnim }],
               },
             ]}
@@ -110,7 +119,7 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
         </Pressable>
       )}
 
-      <View style={styles.right}>
+      <View style={styles.right} onLayout={(e) => setRightWidth(e.nativeEvent.layout.width)}>
         <Pressable
           onPress={() => router.push('/files')}
           style={({ pressed }) => [styles.action, { opacity: pressed ? 0.86 : 1, backgroundColor: '#3EC9A6' }]}
