@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
+import { Card } from '../ui/Card';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '../../constants/theme';
 import { LanguageBadge } from './LanguageBadge';
 import MacWindowControls from '../ui/MacWindowControls';
@@ -51,29 +52,15 @@ export function SnippetCard({
   const timeAgo = getTimeAgo(snippet.updatedAt);
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
-          borderRadius: BorderRadius.lg,
-          ...theme.shadow.sm,
-        },
-      ]}
-    >
-      {/* Mac window controls (polished container at top-right) */}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.touchableContainer}>
+      <Card elevated padding={0} style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: BorderRadius.lg, ...theme.shadow.sm }]} dotGrid>
       <View
         pointerEvents="none"
         style={[
           styles.macWrapper,
           {
-            // Slightly lift and nudge outside the top-right corner for a polished chrome look
-            backgroundColor: `${theme.colors.surface}F0`,
+            backgroundColor: `${theme.colors.surface}EE`,
             borderColor: theme.colors.border,
-            borderRadius: 14,
             ...theme.shadow.sm,
           },
         ]}
@@ -81,6 +68,7 @@ export function SnippetCard({
         <MacWindowControls size={8} />
       </View>
 
+      <View style={styles.content}>
       {/* Top row: title + actions */}
       <View style={styles.topRow}>
         <View style={styles.titleArea}>
@@ -172,6 +160,8 @@ export function SnippetCard({
       <View style={styles.footerRow}>
         <Feather name="chevron-right" size={16} color={theme.colors.textTertiary} />
       </View>
+      </View>
+      </Card>
     </TouchableOpacity>
   );
 }
@@ -193,7 +183,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: Spacing.base,
     marginBottom: Spacing.md,
-      position: 'relative',
+    position: 'relative',
+  },
+  content: {
+    paddingTop: 26,
+  },
+  touchableContainer: {
+    marginBottom: Spacing.md,
   },
   topRow: {
     flexDirection: 'row',
@@ -202,12 +198,13 @@ const styles = StyleSheet.create({
   },
   macWrapper: {
     position: 'absolute',
-    top: -10,
-    right: 12,
+    top: 10,
+    right: 10,
     zIndex: 4,
     paddingVertical: 4,
     paddingHorizontal: 6,
     borderWidth: 1,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   titleArea: {

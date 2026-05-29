@@ -136,22 +136,54 @@ export const Shadow = {
 
 // Build a full theme object from color mode
 export function buildTheme(isDark: boolean) {
+  // When dark mode is enabled, prefer a deep 'black' variant for a sleeker look
+  if (isDark) {
+    return {
+      colors: {
+        primary: Colors.primary,
+        primaryLight: Colors.primaryLight,
+        primaryDark: Colors.primaryDark,
+        accent: Colors.accent,
+        background: '#000000',
+        surface: '#0B0B0D',
+        surfaceElevated: '#121212',
+        textPrimary: '#EAEAEA',
+        textSecondary: '#BDBDBD',
+        textTertiary: '#9F9F9F',
+        border: '#1F1F1F',
+        codeBg: '#050505',
+        tabActive: Colors.tabActive,
+        tabInactive: '#6B7280',
+        success: Colors.success,
+        warning: Colors.warning,
+        danger: Colors.danger,
+        favorite: Colors.favorite,
+      },
+      isDark,
+      spacing: Spacing,
+      radius: BorderRadius,
+      fontSize: FontSize,
+      fontWeight: FontWeight,
+      shadow: Shadow,
+    };
+  }
+
   return {
     colors: {
       primary: Colors.primary,
       primaryLight: Colors.primaryLight,
       primaryDark: Colors.primaryDark,
       accent: Colors.accent,
-      background: isDark ? Colors.backgroundDark : Colors.backgroundLight,
-      surface: isDark ? Colors.surfaceDark : Colors.surfaceLight,
-      surfaceElevated: isDark ? Colors.surfaceElevatedDark : Colors.surfaceElevatedLight,
-      textPrimary: isDark ? Colors.textPrimaryDark : Colors.textPrimaryLight,
-      textSecondary: isDark ? Colors.textSecondaryDark : Colors.textSecondaryLight,
-      textTertiary: isDark ? Colors.textTertiaryDark : Colors.textTertiaryLight,
-      border: isDark ? Colors.borderDark : Colors.borderLight,
-      codeBg: isDark ? Colors.codeBgDark : Colors.codeBgLight,
+      background: Colors.backgroundLight,
+      surface: Colors.surfaceLight,
+      surfaceElevated: Colors.surfaceElevatedLight,
+      textPrimary: Colors.textPrimaryLight,
+      textSecondary: Colors.textSecondaryLight,
+      textTertiary: Colors.textTertiaryLight,
+      border: Colors.borderLight,
+      codeBg: Colors.codeBgLight,
       tabActive: Colors.tabActive,
-      tabInactive: isDark ? Colors.tabInactiveDark : Colors.tabInactiveLight,
+      tabInactive: Colors.tabInactiveLight,
       success: Colors.success,
       warning: Colors.warning,
       danger: Colors.danger,

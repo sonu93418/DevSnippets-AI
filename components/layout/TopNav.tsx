@@ -10,7 +10,7 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
-  const { theme } = useTheme();
+  const { theme, themeMode, setThemeMode } = useTheme();
   const [thoughtIndex, setThoughtIndex] = useState(0);
   const sideInset = Math.max(72, Math.round(width * 0.22));
   const thoughtFontSize = width < 360 ? 16 : 22;
@@ -127,10 +127,14 @@ export default function TopNav({ title = 'Code Library' }: { title?: string }) {
           <Feather name="search" size={18} color="#F4F4F6" />
         </Pressable>
         <Pressable
-          onPress={() => router.push('/settings')}
+          onPress={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
           style={({ pressed }) => [styles.action, { opacity: pressed ? 0.86 : 1, backgroundColor: '#7A5AF8' }]}
         >
-          <Feather name="settings" size={18} color="#F4F4F6" />
+          <Feather
+            name={themeMode === 'dark' || (themeMode === 'system' && theme.isDark) ? 'moon' : 'sun'}
+            size={18}
+            color="#F4F4F6"
+          />
         </Pressable>
       </View>
     </View>
