@@ -12,6 +12,7 @@ import {
   toggleFavorite,
   getSnippetById,
 } from '../lib/db/snippets';
+import { snippetEvents } from '../lib/events';
 
 interface UseSnippetsReturn {
   snippets: Snippet[];
@@ -29,6 +30,7 @@ export function useSnippets(initialFilters?: SearchFilters): UseSnippetsReturn {
   const [snippets, setSnippets] = useState<Snippet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isRefreshingRef = useRef(false);
   const initialFiltersRef = useRef(initialFilters);
   const initialFiltersKey = JSON.stringify(initialFilters ?? null);
 
@@ -37,13 +39,21 @@ export function useSnippets(initialFilters?: SearchFilters): UseSnippetsReturn {
   }, [initialFiltersKey]);
 
   const refresh = useCallback(async (filters?: SearchFilters) => {
+    if (isRefreshingRef.current) {
+      return;
+    }
+
     try {
+      isRefreshingRef.current = true;
       setLoading(true);
       setError(null);
       // SQLite v15: synchronous — wrap in setTimeout to avoid blocking render
+      console.debug('useSnippets.refresh: requesting snippets', { filters: filters ?? initialFiltersRef.current });
       const data = await new Promise<Snippet[]>((resolve, reject) => {
         try {
-          resolve(getSnippets(filters ?? initialFiltersRef.current));
+          const res = getSnippets(filters ?? initialFiltersRef.current);
+          console.debug('useSnippets.refresh: got', res.length, 'snippets', res.slice(0, 6).map((s) => ({ id: s.id, title: s.title })));
+          resolve(res);
         } catch (e) {
           reject(e);
         }
@@ -52,6 +62,7 @@ export function useSnippets(initialFilters?: SearchFilters): UseSnippetsReturn {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load snippets');
     } finally {
+      isRefreshingRef.current = false;
       setLoading(false);
     }
   }, [initialFiltersKey]);
@@ -59,6 +70,15 @@ export function useSnippets(initialFilters?: SearchFilters): UseSnippetsReturn {
   useEffect(() => {
     refresh();
   }, [refresh, initialFiltersKey]);
+
+  // Subscribe to global snippet events so different hook instances stay in sync
+  useEffect(() => {
+    const unsub = snippetEvents.subscribe(() => {
+      // prefer the current filters in this hook
+      refresh().catch(() => {});
+    });
+    return () => unsub();
+  }, [refresh]);
 
   const addSnippet = useCallback(async (input: SnippetCreateInput): Promise<Snippet> => {
     try {

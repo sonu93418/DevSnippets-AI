@@ -152,6 +152,16 @@ export function buildTheme(isDark: boolean) {
         textTertiary: '#9F9F9F',
         border: '#1F1F1F',
         codeBg: '#050505',
+        // Syntax colors inspired by VS Code default/dark theme
+        syntax: {
+          keyword: '#C586C0',
+          string: '#CE9178',
+          comment: '#6A9955',
+          function: '#DCDCAA',
+          number: '#B5CEA8',
+          operator: '#9CDCFE',
+          variable: '#9CDCFE',
+        },
         tabActive: Colors.tabActive,
         tabInactive: '#6B7280',
         success: Colors.success,
@@ -182,6 +192,16 @@ export function buildTheme(isDark: boolean) {
       textTertiary: Colors.textTertiaryLight,
       border: Colors.borderLight,
       codeBg: Colors.codeBgLight,
+      // Syntax colors for light theme (VS Code light-inspired)
+      syntax: {
+        keyword: '#0000FF',
+        string: '#A31515',
+        comment: '#008000',
+        function: '#795E26',
+        number: '#098658',
+        operator: '#000000',
+        variable: '#001080',
+      },
       tabActive: Colors.tabActive,
       tabInactive: Colors.tabInactiveLight,
       success: Colors.success,

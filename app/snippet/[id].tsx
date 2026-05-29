@@ -48,6 +48,14 @@ export default function SnippetDetailScreen() {
   const { theme } = useTheme();
   const { getSnippet, editSnippet, removeSnippet, toggleSnippetFavorite } = useSnippets();
 
+  const safeBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/');
+  };
+
   const [snippet, setSnippet] = useState<Snippet | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -84,7 +92,7 @@ export default function SnippetDetailScreen() {
           onPress: async () => {
             if (snippet) {
               await removeSnippet(snippet.id);
-              router.back();
+              safeBack();
             }
           },
         },

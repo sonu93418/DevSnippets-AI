@@ -2,6 +2,7 @@
 // Snippet CRUD — expo-sqlite v15 synchronous API (SDK 55)
 // ============================================================
 import { Platform } from 'react-native';
+import { snippetEvents } from '../events';
 import { queryAll, queryFirst, runQuery } from './database';
 import type { Snippet, SnippetCreateInput, SnippetUpdateInput, SearchFilters } from '../../types';
 
@@ -131,7 +132,9 @@ function rowToSnippet(row: SnippetRow): Snippet {
 
 export function getSnippets(filters?: SearchFilters): Snippet[] {
   if (isWeb()) {
-    return sortSnippets(readWebSnippets().filter((snippet) => matchesFilters(snippet, filters)));
+    const all = readWebSnippets().filter((snippet) => matchesFilters(snippet, filters));
+    console.debug('getSnippets (web):', { requestedFilters: filters ?? null, returned: all.length });
+    return sortSnippets(all);
   }
 
   let sql = 'SELECT * FROM snippets WHERE 1=1';
@@ -152,6 +155,7 @@ export function getSnippets(filters?: SearchFilters): Snippet[] {
   sql += ' ORDER BY updated_at DESC';
 
   let snippets = queryAll<SnippetRow>(sql, params).map(rowToSnippet);
+  console.debug('getSnippets (sqlite):', { sql, params, returned: snippets.length });
 
   if (filters?.tags && filters.tags.length > 0) {
     snippets = snippets.filter((s) =>
@@ -218,7 +222,17 @@ export function createSnippet(input: SnippetCreateInput): Snippet {
 
   try {
     const cnt = queryFirst<{ count: number }>('SELECT COUNT(*) as count FROM snippets');
-    console.debug('createSnippet: sqlite snippets count after insert', cnt?.count ?? 'unknown');
+    // Also log the latest rows (ids + titles) to help debugging duplicate/seed data issues
+    try {
+      const rows = queryAll<Pick<SnippetRow, 'id' | 'title'>>('SELECT id, title FROM snippets ORDER BY updated_at DESC LIMIT 10');
+      console.debug('createSnippet: sqlite snippets count after insert', cnt?.count ?? 'unknown', rows.map((r) => ({ id: r.id, title: r.title })));
+    } catch (e) {
+      console.debug('createSnippet: sqlite snippets count after insert', cnt?.count ?? 'unknown');
+    }
+    // Notify UI hooks that snippets changed so they can refresh immediately
+    try {
+      snippetEvents.emitRefresh();
+    } catch {}
   } catch {}
 
   return {

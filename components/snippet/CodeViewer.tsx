@@ -34,6 +34,36 @@ export function CodeViewer({
 
   const lines = code.split('\n');
 
+  // Lightweight JS/TS tokenizer to provide VS Code-like syntax colors.
+  // Falls back to plain text for unrecognised languages.
+  function tokenize(line: string) {
+    // order matters: comments, strings, numbers, keywords, identifiers(func), booleans, whitespace, everything else
+    const keywords = '\\b(?:const|let|var|function|return|if|else|for|while|switch|case|break|new|class|extends|import|from|export|default|try|catch|finally|throw|await|async|typeof|instanceof|in|of)\\b';
+    const tokenRegex = new RegExp(
+      `(//.*$|/\\*[\\s\\S]*?\\*/|"(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*'|` +
+        "`(?:\\\\.|[^`\\\\])*`" +
+        `|\\b\\d+(?:\\.\\d+)?\\b|${keywords}|[A-Za-z_$][\\w$]*(?=\\s*\\()|\\b(?:true|false|null|undefined)\\b|\\s+|.)`,
+      'g',
+    );
+
+    const parts: { text: string; type: string }[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = tokenRegex.exec(line)) !== null) {
+      const t = m[0];
+      let type = 'plain';
+      if (t.startsWith('//') || t.startsWith('/*')) type = 'comment';
+      else if (t.startsWith('"') || t.startsWith("'") || t.startsWith('`')) type = 'string';
+      else if (/^\d/.test(t)) type = 'number';
+      else if (new RegExp(keywords).test(t)) type = 'keyword';
+      else if (/^[A-Za-z_$][\w$]*\($/.test(t + '(')) type = 'function';
+      else if (/^(true|false|null|undefined)$/.test(t)) type = 'literal';
+      else if (/^\s+$/.test(t)) type = 'whitespace';
+      else if (/^[(){}\[\].,;:+\-*/%!=<>|&^~?:]+$/.test(t)) type = 'operator';
+      parts.push({ text: t, type });
+    }
+    return parts;
+  }
+
   const handleCopy = async () => {
     await Clipboard.setStringAsync(code);
     setCopied(true);
@@ -102,11 +132,28 @@ export function CodeViewer({
             )}
             <View style={styles.codeLines}>
               {lines.map((line, i) => (
-                <Text
-                  key={i}
-                  style={[styles.codeLine, { color: theme.colors.textPrimary }]}
-                >
-                  {line || ' '}
+                <Text key={i} style={styles.codeLine}>
+                  {tokenize(line).map((tok, j) => {
+                    const colorMap: { [k: string]: string } = {
+                      keyword: theme.colors.syntax?.keyword || theme.colors.primary,
+                      string: theme.colors.syntax?.string || '#A31515',
+                      comment: theme.colors.syntax?.comment || '#6A9955',
+                      function: theme.colors.syntax?.function || theme.colors.primary,
+                      number: theme.colors.syntax?.number || theme.colors.tabActive,
+                      operator: theme.colors.syntax?.operator || theme.colors.textTertiary,
+                      variable: theme.colors.syntax?.variable || theme.colors.textPrimary,
+                      literal: theme.colors.syntax?.number || theme.colors.tabActive,
+                      plain: theme.colors.textPrimary,
+                      whitespace: theme.colors.textPrimary,
+                    };
+
+                    const tokenColor = colorMap[tok.type] || theme.colors.textPrimary;
+                    return (
+                      <Text key={j} style={{ color: tokenColor, fontFamily: MONO_FONT }}>
+                        {tok.text || ' '}
+                      </Text>
+                    );
+                  })}
                 </Text>
               ))}
             </View>

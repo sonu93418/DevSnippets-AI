@@ -14,10 +14,18 @@ export default function CreateSnippetScreen() {
   const { theme } = useTheme();
   const { addSnippet } = useSnippets();
 
+  const safeClose = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/');
+  };
+
   const handleSubmit = async (values: SnippetCreateInput) => {
     try {
       await addSnippet(values);
-      router.back();
+      safeClose();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       Alert.alert('Error', `Failed to create snippet.\n\n${message}`);
@@ -41,7 +49,7 @@ export default function CreateSnippetScreen() {
       >
         <SnippetForm
           onSubmit={handleSubmit}
-          onCancel={() => router.back()}
+          onCancel={safeClose}
         />
       </SafeAreaView>
     </>
