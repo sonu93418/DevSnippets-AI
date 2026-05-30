@@ -24,7 +24,7 @@ interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
   hint?: string;
 }
-
+// FUNCTION IS OK SHO 
 export function Input({
   label,
   error,

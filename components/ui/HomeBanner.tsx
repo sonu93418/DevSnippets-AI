@@ -1,8 +1,8 @@
 // ============================================================
 // Home Banner — Clean top header for the snippets dashboard
 // ============================================================
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Image, Animated, Easing } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '../../constants/theme';
@@ -12,20 +12,54 @@ interface HomeBannerProps {
   snippetCount: number;
 }
 
-function LogoMark() {
-  return (
-    <View style={styles.logoShell}>
-      <View style={styles.logoGlowA} />
-      <View style={styles.logoGlowB} />
-      <View style={styles.logoCore}>
-        <Image source={require('../../assets/icon.png')} style={styles.logoImage} />
-      </View>
-    </View>
-  );
-}
-
 export function HomeBanner({ snippetCount }: HomeBannerProps) {
   const { theme } = useTheme();
+
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const titleEntrance = useRef(new Animated.Value(0)).current;
+  const titleFloat = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 8000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    Animated.timing(titleEntrance, {
+      toValue: 1,
+      duration: 600,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(titleFloat, { toValue: -3, duration: 2000, useNativeDriver: true, easing: Easing.inOut(Easing.quad) }),
+          Animated.timing(titleFloat, { toValue: 3, duration: 2000, useNativeDriver: true, easing: Easing.inOut(Easing.quad) }),
+        ])
+      ).start();
+    });
+  }, [rotateAnim, titleEntrance, titleFloat]);
+
+  const rotateA = rotateAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  const rotateB = rotateAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
+  const titleOpacity = titleEntrance;
+  const titleTranslateY = titleFloat;
+
+  function LogoMarkAnimated() {
+    return (
+      <View style={styles.logoShell}>
+        <Animated.View style={[styles.logoGlowA, { transform: [{ rotate: rotateA }, { scale: 1.02 }] }]} />
+        <Animated.View style={[styles.logoGlowB, { transform: [{ rotate: rotateB }, { scale: 0.98 }] }]} />
+        <View style={styles.logoCore}>
+          <Image source={require('../../assets/icon.png')} style={styles.logoImage} />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <Card
@@ -45,10 +79,14 @@ export function HomeBanner({ snippetCount }: HomeBannerProps) {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <LogoMark />
+            <LogoMarkAnimated />
             <View style={styles.headerTextBlock}>
-              <Text style={[styles.kicker, { color: theme.colors.primaryDark }]}>SNIPPETS</Text>
-              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Snippets</Text>
+              <Animated.Text style={[styles.kicker, { color: theme.colors.primaryDark, opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] }]}>
+                SNIPPETS
+              </Animated.Text>
+              <Animated.Text style={[styles.title, { color: theme.colors.textPrimary, opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] }]}>
+                Snippets
+              </Animated.Text>
             </View>
           </View>
         </View>
